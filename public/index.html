@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Precision Mind: Interactive Playbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #403d39;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .nav-item:hover {
+            background-color: #EAE5E0;
+        }
+        .nav-item.active {
+            background-color: #D4C9BE;
+            color: #252422;
+            font-weight: 600;
+        }
+        .accordion-header.active span:last-child {
+            transform: rotate(180deg);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .prose-styles h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #252422;
+        }
+        .prose-styles h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #252422;
+        }
+        .prose-styles h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #252422;
+        }
+        .prose-styles p, .prose-styles li {
+            color: #403d39;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .prose-styles ul, .prose-styles ol {
+            list-style-position: inside;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+        .prose-styles ul { list-style-type: disc; }
+        .prose-styles ol { list-style-type: decimal; }
+        .prose-styles strong {
+            color: #252422;
+            font-weight: 600;
+        }
+        .prose-styles blockquote {
+            border-left: 4px solid #D4C9BE;
+            padding-left: 1rem;
+            margin-left: 0;
+            font-style: italic;
+            color: #6B7280;
+        }
+        .custom-card {
+            background-color: #FFF;
+            border: 1px solid #EAE5E0;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            transition: all 0.2s ease-in-out;
+        }
+        .custom-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .custom-button {
+            background-color: #403d39;
+            color: #FDFBF8;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .custom-button:hover {
+            background-color: #252422;
+        }
+        .custom-button:disabled {
+            background-color: #a09d99;
+            cursor: not-allowed;
+        }
+        .tab-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button.active {
+            background-color: #EAE5E0;
+            color: #252422;
+            font-weight: 600;
+            border-bottom-color: #403d39;
+        }
+        .ascii-art {
+            font-family: monospace;
+            white-space: pre;
+            text-align: left;
+            overflow-x: auto;
+            background-color: #f7f7f7;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+        .form-label-guide {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .loading-indicator {
+            text-align: center;
+            padding: 1rem;
+            font-style: italic;
+            color: #6b7280;
+        }
+        .ai-feedback-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f0f9ff;
+            border: 1px solid #e0f2fe;
+            border-radius: 0.5rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="flex h-screen bg-gray-100">
+        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 p-4 transition-transform transform md:translate-x-0 -translate-x-full">
+            <div class="flex items-center mb-8">
+                <div class="p-2 bg-[#D4C9BE] rounded-lg mr-3"> <span class="text-xl">💡</span>
+                </div>
+                <h1 class="text-xl font-bold text-gray-800">The Precision Mind</h1>
+            </div>
+            <nav class="flex-grow space-y-2">
+                <a class="nav-item active" data-view="home">🔹 Home</a>
+                <a class="nav-item" data-view="clarity-builder">🎯 Clarity Builder</a>
+                <a class="nav-item" data-view="mental-models">🧰 Mental-Model Toolbox</a>
+                <a class="nav-item" data-view="socratic-questioning">❓ Socratic Questioning</a>
+                <a class="nav-item" data-view="decision-speed">⚡️ Decision-Speed System</a>
+                <a class="nav-item" data-view="problem-solving">🛠️ Problem-Solving Workflow</a>
+                <a class="nav-item" data-view="learning-accelerator">🚀 Learning Accelerator</a>
+                <a class="nav-item" data-view="social-intelligence">🧠 Social Intelligence</a>
+                <a class="nav-item" data-view="self-prompting">📋 Self-Prompting Sheet</a>
+                <a class="nav-item" data-view="practice-drills">🏋️ Practice Drills</a>
+                <a class="nav-item" data-view="progress-metrics">📊 Progress Metrics</a>
+                <a class="nav-item" data-view="resource-stack">📚 Resource Stack</a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="flex justify-between items-center p-4 bg-white border-b md:hidden">
+                <h1 class="text-xl font-bold">The Precision Mind</h1>
+                <button id="menu-button" class="p-2 rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </header>
+
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#FDFBF8]">
+                <div class="container mx-auto px-6 py-8">
+                    <div id="home" class="view-content prose-styles">
+                        <h2>Welcome to Your Mastery Playbook</h2>
+                        <p class="text-lg text-gray-600">This interactive dashboard transforms the playbook's principles into actionable tools. Navigate using the sidebar to access each system and start your journey from mental clutter to clarity and decisive action.</p>
+                        <h3>Core Systems &amp; Wins</h3>
+                        <p>This playbook provides an integrated system designed for the ambitious professional navigating the complexities of modern life and career, aiming to elevate thinking and decision-making to peak levels. The overarching goal is to equip you with a self-sufficient thinking system, enabling you to filter noise, see opportunities, and act with confidence across every facet of your life.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                            <div class="custom-card p-6">
+                                <h4 class="font-bold text-lg mb-2">🎯 Achieve Unshakeable Clarity</h4>
+                                <p>Use the Clarity Builder to craft a one-page Life North Star, providing a consistent internal compass for all your endeavors.</p>
+                            </div>
+                            <div class="custom-card p-6">
+                                <h4 class="font-bold text-lg mb-2">🧰 Master Your Mental Toolkit</h4>
+                                <p>Deploy 15 powerful thinking frameworks to dissect complex problems and make superior decisions in business, sales, and personal life.</p>
+                            </div>
+                            <div class="custom-card p-6">
+                                <h4 class="font-bold text-lg mb-2">⚡️ Decide with Speed &amp; Confidence</h4>
+                                <p>Implement the Decision-Speed System to slash indecision, pressure-test ideas, and bust through analysis-paralysis.</p>
+                            </div>
+                            <div class="custom-card p-6">
+                                <h4 class="font-bold text-lg mb-2">💡 Execute with a Fast-Action Workflow</h4>
+                                <p>Use the "SOLVE IT" system to systematically tackle any challenge, turning setbacks into actionable next steps.</p>
+                            </div>
+                            <div class="custom-card p-6">
+                                <h4 class="font-bold text-lg mb-2">🚀 Become a Rapid, Resilient Learner</h4>
+                                <p>Master the 5-step Learning Accelerator to compress the time needed to absorb and apply new knowledge effectively.</p>
+                            </div>
+                            <div class="custom-card p-6">
+                                <h4 class="font-bold text-lg mb-2">🏋️ Engineer Your Own Success</h4>
+                                <p>Engage in daily Practice Drills and track your progress with visual metrics to foster cognitive independence and a cycle of achievement.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="clarity-builder" class="view-content hidden prose-styles">
+                        <h2>🎯 Clarity Builder: Your 1-Page Life North Star</h2>
+                        <p>A clear Life North Star acts as an unwavering guide, illuminating the path through daily choices and long-term ambitions. This interactive exercise guides you through a 3-step process to define and articulate your unique Life North Star. Fill out the fields below to generate your personal 1-page guide.</p>
+                        <div class="bg-white p-8 rounded-lg shadow-md mt-6">
+                            <div class="space-y-6">
+                                <div>
+                                    <label for="north-star-statement" class="block text-sm font-medium text-gray-700">Your North Star Statement</label>
+                                    <textarea id="north-star-statement" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+                                </div>
+                                <div>
+                                    <label for="priority-pillars" class="block text-sm font-medium text-gray-700">Your Priority Pillars</label>
+                                    <textarea id="priority-pillars" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+                                </div>
+                                <div>
+                                    <label for="heartbeat-principles" class="block text-sm font-medium text-gray-700">Your Heartbeat Principles</label>
+                                    <textarea id="heartbeat-principles" rows="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+                                </div>
+                                <div>
+                                    <label for="big-goals" class="block text-sm font-medium text-gray-700">Your Big 3 Goals</label>
+                                    <textarea id="big-goals" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+                                </div>
+                                <div class="flex justify-end space-x-3">
+                                    <button id="generate-north-star" class="custom-button">Generate My North Star</button>
+                                    <button id="get-ai-feedback-north-star" class="custom-button hidden">✨ Get AI Feedback</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="north-star-output" class="hidden mt-8 bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+                            <h3 class="text-2xl font-bold text-center mb-6">My Life North Star</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-semibold text-lg border-b pb-2 mb-2">North Star Statement</h4>
+                                    <p id="output-statement" class="text-gray-700 italic"></p>
+                                </div>
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-lg border-b pb-2 mb-2">Priority Pillars</h4>
+                                        <ul id="output-pillars" class="list-disc list-inside space-y-1 text-gray-700"></ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-lg border-b pb-2 mb-2">Heartbeat Principles</h4>
+                                        <ul id="output-principles" class="list-disc list-inside space-y-1 text-gray-700"></ul>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-lg border-b pb-2 mb-2">Big 3 Goals</h4>
+                                    <ul id="output-goals" class="list-disc list-inside space-y-1 text-gray-700"></ul>
+                                </div>
+                            </div>
+                            <div class="mt-8 text-center text-sm text-gray-500">
+                                <p><strong>Daily Use Tip:</strong> Review this page each morning.</p>
+                            </div>
+                        </div>
+                        <div id="ai-north-star-feedback-area" class="hidden ai-feedback-box">
+                            <h4 class="font-semibold text-lg mb-2">✨ AI Feedback & Suggestions:</h4>
+                            <div id="ai-north-star-feedback-content"></div>
+                            <div id="ai-north-star-loading" class="loading-indicator hidden">Loading AI feedback...</div>
+                        </div>
+                    </div>
+                    <div id="mental-models" class="view-content hidden prose-styles">
+                        <h2>🧰 Mental-Model Toolbox</h2>
+                        <p>Mental models are frameworks that simplify complex thinking.</p>
+                        <div class="my-6">
+                            <input id="model-search" type="text" placeholder="Search models..." class="w-full p-3 rounded-md border border-gray-300 shadow-sm">
+                        </div>
+                        <div id="models-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    </div>
+                    <!-- Additional sections removed for brevity -->
+                </div>
+            </main>
+        </div>
+    </div>
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div id="modal-content" class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 relative">
+            <button id="modal-close" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div id="modal-body" class="prose-styles"></div>
+        </div>
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    let mentalModels = [];
+
+    async function fetchModels() {
+        const res = await fetch('/api/models');
+        mentalModels = await res.json();
+        renderMentalModels();
+    }
+
+    async function loadNorthStar() {
+        const res = await fetch('/api/north-star');
+        if (res.ok) {
+            const data = await res.json();
+            if (data) {
+                document.getElementById('north-star-statement').value = data.statement || '';
+                document.getElementById('priority-pillars').value = (data.pillars || []).join('\n');
+                document.getElementById('heartbeat-principles').value = (data.principles || []).join('\n');
+                document.getElementById('big-goals').value = (data.goals || []).join('\n');
+            }
+        }
+    }
+
+    function openModal() {
+        document.body.style.overflow = 'hidden';
+        document.getElementById('modal').classList.remove('hidden');
+        document.getElementById('modal').classList.add('flex');
+    }
+    function closeModal() {
+        document.body.style.overflow = '';
+        document.getElementById('modal').classList.add('hidden');
+        document.getElementById('modal').classList.remove('flex');
+    }
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+
+    function renderMentalModels() {
+        const grid = document.getElementById('models-grid');
+        grid.innerHTML = '';
+        const searchTerm = (document.getElementById('model-search').value || '').toLowerCase();
+        mentalModels
+            .filter(m => m.name.toLowerCase().includes(searchTerm))
+            .forEach(model => {
+                const card = document.createElement('div');
+                card.className = 'custom-card p-6 flex items-center space-x-4 cursor-pointer';
+                card.innerHTML = `<div class="text-3xl">${model.icon}</div><div><h4 class="font-bold text-lg">${model.name}</h4><p class="text-sm text-gray-600">${model.description.substring(0,70)}...</p></div>`;
+                card.addEventListener('click', () => {
+                    document.getElementById('modal-body').innerHTML = `<h2 class="text-2xl font-bold mb-4 flex items-center"><span class="text-4xl mr-4">${model.icon}</span>${model.name}</h2><h3>Definition</h3><p>${model.description}</p><h3>Analogy</h3><blockquote>${model.analogy}</blockquote><h3>Use-Case</h3><p>${model.useCase}</p>`;
+                    openModal();
+                });
+                grid.appendChild(card);
+            });
+    }
+
+    document.getElementById('model-search').addEventListener('input', renderMentalModels);
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
+            document.getElementById(item.dataset.view).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
+        });
+    });
+
+    document.getElementById('generate-north-star').addEventListener('click', async () => {
+        const statement = document.getElementById('north-star-statement').value;
+        const pillars = document.getElementById('priority-pillars').value.split('\n').filter(x => x);
+        const principles = document.getElementById('heartbeat-principles').value.split('\n').filter(x => x);
+        const goals = document.getElementById('big-goals').value.split('\n').filter(x => x);
+        document.getElementById('output-statement').textContent = statement;
+        const fillList = (id, items) => {
+            const ul = document.getElementById(id); ul.innerHTML='';
+            items.forEach(i => { const li=document.createElement('li'); li.textContent=i; ul.appendChild(li); });
+        };
+        fillList('output-pillars', pillars);
+        fillList('output-principles', principles);
+        fillList('output-goals', goals);
+        document.getElementById('north-star-output').classList.remove('hidden');
+        await fetch('/api/north-star', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({statement, pillars, principles, goals})
+        });
+    });
+
+    fetchModels();
+    loadNorthStar();
+});
+</script>
+</body>
+</html>
