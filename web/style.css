@@ -1,0 +1,26 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    background: #f4f4f4;
+}
+header, footer {
+    background: #333;
+    color: #fff;
+    padding: 10px 20px;
+    text-align: center;
+}
+main {
+    padding: 20px;
+}
+.hidden {
+    display: none;
+}
+#taskList li {
+    list-style: none;
+    margin-bottom: 5px;
+}
+button {
+    margin-top: 5px;
+}
